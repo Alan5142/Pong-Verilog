@@ -65,13 +65,13 @@ module top(
 					if (keycode == 16'h001D) begin
 						p1_up = 0;
 					end
-					else if (keycode == 16'h001B) begin
+					if (keycode == 16'h001B) begin
 						p1_down = 0;
 					end
-					else if (keycode == 16'hE075) begin
+					if (keycode == 16'hE075) begin
 						p2_up = 0;
 					end
-					else if (keycode == 16'hE072) begin
+					if (keycode == 16'hE072) begin
 						p2_down = 0;
 					end
 				end
