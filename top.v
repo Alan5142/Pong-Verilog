@@ -61,10 +61,10 @@ module top(
 		always @ (posedge clk) begin
 			if (read_complete) begin
 				if (break_code) begin
-					if (keycode == 16'hE06B) begin
+					if (keycode == 16'hE027) begin
 						p1_up <= 0;
 					end
-					if (keycode == 16'hE074) begin
+					if (keycode == 16'hE01F) begin
 						p1_down <= 0;
 					end
 					if (keycode == 16'hE075) begin
@@ -76,7 +76,7 @@ module top(
 				end
 				else begin
 					// if (keycode == 16'hE075) p1_up <= 1;
-					if (keycode == 16'hE06B) begin 
+					if (keycode == 16'hE027) begin 
 						p1_up <= 1;
 						p1_down <= 0;
 					end
@@ -84,7 +84,7 @@ module top(
 						p2_up <= 1;
 						p2_down <= 0;
 					end
-					else if (keycode == 16'hE074) begin 
+					else if (keycode == 16'hE01F) begin 
 						p1_up <= 0;
 						p1_down <= 1;
 					end
@@ -102,7 +102,7 @@ module top(
 
 		contador_comparador #(
 			.CNT_SIZE(23),
-			.MAX_CNT(500_000)
+			.MAX_CNT(50_000)
 		) game_clk (
 			.clk(clk),
 			.rst_b(~rst),
