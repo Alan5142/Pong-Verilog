@@ -36,6 +36,7 @@ module top(
 		reg [2:0] red = 3'b000;
 		reg [2:0] green = 3'b000;
 		reg [1:0] blue = 2'b00;
+		reg end_game = 0;
 		
 		wire [15:0] keycode;
 		wire read_complete;
@@ -123,14 +124,14 @@ module top(
 		player #(
 			.POS_X(40),
 			.POS_Y(170)
-		) p1(.game_clk(game_clk_hit), .rst(rst | point_p1 | point_p2), .up(p1_up), .down(p1_down), .x(p1_x), .y(p1_y));
+		) p1(.game_clk(game_clk_hit), .rst(rst | point_p1 | point_p2 | end_game), .up(p1_up), .down(p1_down), .x(p1_x), .y(p1_y));
 		
 		wire [9:0] p2_x;
 		wire [9:0] p2_y;
 		player #(
 			.POS_X(550),
 			.POS_Y(170)
-		) p2(.game_clk(game_clk_hit), .rst(rst | point_p1 | point_p2), .up(p2_up), .down(p2_down), .x(p2_x), .y(p2_y));
+		) p2(.game_clk(game_clk_hit), .rst(rst | point_p1 | point_p2 | end_game), .up(p2_up), .down(p2_down), .x(p2_x), .y(p2_y));
 		
 		
 		////////////////////////////////////// BALL //////////////////////////////////////////
@@ -144,7 +145,7 @@ module top(
 				.p1_y(p1_y),
 				.p2_x(p2_x),
 				.p2_y(p2_y),
-				.rst(rst | point_p1 | point_p2),
+				.rst(rst | point_p1 | point_p2 | end_game),
 				.x(ball_x),
 				.y(ball_y),
 				.point_p1(point_p1),
@@ -159,22 +160,35 @@ module top(
 		assign score_1 = score_1_r;
 		assign score_2 = score_2_r;
 		
-		always @(rst, point_p1, point_p2) begin
+		always @(posedge rst, posedge point_p1) begin
 			if (rst) begin
-				score_1_r = 0;
-				score_2_r = 0;
+				score_1_r <= 0;
 			end
 			else if (point_p1) begin
-				score_1_r = score_1_r + 1;
-			end
-			else if (point_p2) begin
-				score_2_r = score_2_r + 1;
+				score_1_r <= score_1_r + 1;
 			end
 		end
-		// score scr(.rst(rst), .p1_point(point_p1), .p2_point(point_p2), .score_1(score_1), .score_2(score_2));
 		
+		always @(posedge rst, posedge point_p2) begin
+			if (rst) begin
+				score_2_r <= 0;
+			end
+			else if (point_p2) begin
+				score_2_r <= score_2_r + 1;
+			end
+		end
 		
-		/////////////////////////////////////////DISPLAY ///////////////////////////////////////////
+		always @(posedge game_clk_hit) begin
+			if (rst) begin
+				end_game <= 0;
+			end
+			else if (score_1 == 5) begin
+				end_game <= 1;
+			end
+			else if (score_2 == 5) begin
+				end_game <= 1;
+			end
+		end
 				
 		///////////////////////////////////// DISPLAY ////////////////////////////////////
 		wire [7:0] count;
