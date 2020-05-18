@@ -23,15 +23,12 @@ module keyboard(
 		input rst,
 		input ps2_clk,
 		input ps2_data,
-		output reg [15:0] keycode,
+		output reg [7:0] data,
 		output reg read_complete
     );
-	 
-	 reg [7:0] received_data;
-	 reg	[7:0] previous_data;
-	 reg [3:0] state;
 	 reg end_flag;
-	 	 
+	 reg [3:0] state;
+	 reg [7:0] internal_data;
 	 initial begin
 		state = 0;
 		end_flag = 0;
@@ -41,33 +38,30 @@ module keyboard(
 	 always @ (negedge ps2_clk) begin
 		case (state)
 			0:;
-			1: received_data[0] <= ps2_data;
-			2: received_data[1] <= ps2_data;
-			3: received_data[2] <= ps2_data;
-			4: received_data[3] <= ps2_data;
-			5: received_data[4] <= ps2_data;
-			6: received_data[5] <= ps2_data;
-			7: received_data[6] <= ps2_data;
-			8: received_data[7] <= ps2_data;
+			1: internal_data[0] <= ps2_data;
+			2: internal_data[1] <= ps2_data;
+			3: internal_data[2] <= ps2_data;
+			4: internal_data[3] <= ps2_data;
+			5: internal_data[4] <= ps2_data;
+			6: internal_data[5] <= ps2_data;
+			7: internal_data[6] <= ps2_data;
+			8: internal_data[7] <= ps2_data;
 			9: end_flag <= 1; // parity
 			10: end_flag <= 0; // end
 		endcase
 		
-		if (state <= 9)
+		if (state <= 9 & state != 0 | (state == 0 & ps2_data == 0))
 			state <= state + 1;
 		else state <= 0;
 	end
 	
 	always @ (posedge clk) begin
 		if (rst) begin
-			keycode <= 0;
 			read_complete <= 0;
-			previous_data <= 0;
 		end
-		if (end_flag) begin
-			keycode <= {previous_data, received_data};
+		else if (end_flag) begin
 			read_complete <= 1;
-			previous_data <= received_data;
+			data <= internal_data;
 		end
 		else read_complete <= 0;
 	end

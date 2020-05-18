@@ -36,6 +36,7 @@ module top(
 		
 		wire [15:0] keycode;
 		wire read_complete;
+		wire break_code;
 		
 		wire [9:0] pixel_column; 
 		wire [9:0] pixel_row; 
@@ -44,7 +45,7 @@ module top(
 		
 		VGA_ctrler vga(clk, red, green, blue, pixel_column, pixel_row, OutRed, OutGreen, OutBlue, HSYNC, VSYNC);
 		
-		keyboard kbrd (.clk(clk), .rst(rst), .ps2_clk(ps2_clk), .ps2_data(ps2_data), .keycode(keycode), .read_complete(read_complete));
+		keyboard_wrapper kbrd(.clk(clk), .rst(rst), .ps2_clk(ps2_clk), .ps2_data(ps2_data), .scan_code(keycode), .finished(read_complete), .break_code(break_code));
 		
 		always @(posedge clk) begin
 			clk_25 <= ~clk_25;
@@ -60,59 +61,37 @@ module top(
 		reg break_pressed = 0;
 		always @ (read_complete) begin
 			if (read_complete) begin
-					if (keycode[15:8] == 8'hF0) begin
-						break_pressed <= 1;
-						
-						/*
-						p1_up <= keycode[15:8] == 8'h1D ? 0 : p1_up;
-						p1_down <= keycode[15:8] == 8'h1B ? 0 : p1_down;
-						
-						p2_up <= keycode[15:8] == 8'h43 ? 0 : p2_up;
-						p2_down <= keycode[15:8] == 8'h42 ? 0 : p2_down;
-						*/
-						
-						if (keycode[7:0] == 8'h1D) begin 
-							p1_up <= 0;
-						end
-						else if (keycode[7:0] == 8'h1B) begin 
-							p1_down <= 0;
-						end
-						else if (keycode[7:0] == 8'h43) begin 
-							p2_up <= 0;
-						end
-						else if (keycode[7:0] == 8'h42) begin 
-							p2_down <= 0;
-						end
+				if (break_code) begin
+					if (keycode == 16'h001D) p1_up = 0;
+					else if (keycode == 16'h001B) p1_down = 0;
+					else if (keycode == 16'hE075) p2_up = 0;
+					else if (keycode == 16'hE072) p2_down = 0;
+				end
+				else begin
+					// if (keycode == 16'hE075) p1_up <= 1;
+					if (keycode == 16'h001D) begin 
+						p1_up = 1;
+						p1_down = 0;
 					end
-					else begin
-						if (keycode[7:0] == 8'h1D) begin 
-							p1_up <= ~break_pressed;
-							p1_down <= break_pressed;
-						end
-						else if (keycode[7:0] == 8'h1B) begin 
-							p1_down <= ~break_pressed;
-							p1_up <= break_pressed;
-						end
-						else if (keycode[7:0] == 8'h43) begin
-							p2_up <= ~break_pressed;
-							p2_down <= break_pressed;
-						end
-						else if (keycode[7:0] == 8'h42) begin 
-							p2_down <= ~break_pressed;
-							p2_up <= break_pressed;
-						end
-						break_pressed <= 0;
+					else if (keycode == 16'hE075) begin
+						p2_up = 1;
+						p2_down = 0;
 					end
-					tmp_data[0] <= p1_up;
-					tmp_data[1] <= p1_down;
-					tmp_data[2] <= p2_up;
-					tmp_data[3] <= p2_down;
+					else if (keycode == 16'h001B) begin 
+						p1_up = 0;
+						p1_down = 1;
+					end
+					else if (keycode == 16'hE072) begin
+						p2_up = 0;
+						p2_down = 1;
+					end
+				end
 			end
 		end
 
 		contador_comparador #(
 			.CNT_SIZE(23),
-			.MAX_CNT(50_000)
+			.MAX_CNT(500_000)
 		) game_clk (
 			.clk(clk),
 			.rst_b(~rst),
