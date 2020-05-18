@@ -31,6 +31,8 @@ module ball#(
 		output reg [9:0] x,
 		output reg [9:0] y
     );
+	 reg signed[1:0] adder_x = 1;
+	 reg signed[1:0] adder_y = 1;
 	 
 	 always @ (posedge game_clk) begin
 		if (rst) begin
@@ -38,7 +40,22 @@ module ball#(
 			x <= POS_X;
 		end
 		else begin
-			
+			if (x == (p1_x + 30) & y >= p1_y & y < (p1_y + 200)) begin
+				adder_x <= 1;
+			end
+			else if (x == p2_x & y >= p2_y & y < (p2_y + 200)) begin
+				adder_x <= -1;
+			end
+			else if(y == 0) begin
+				adder_y <= 1;
+			end
+			else if(y == 640) begin
+				adder_y <= -1;
+			end
+			else begin
+				x <= x + adder_x;
+				y <= y + adder_y;
+			end
 		end
 	 end
 	
