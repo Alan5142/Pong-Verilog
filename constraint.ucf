@@ -28,3 +28,16 @@ NET "leds[5]" LOC ="N4";	 # L5
 NET "leds[6]" LOC ="P4";	 # L6
 NET "leds[7]" LOC ="G1"; 	 # L7, el de la izquierda
 
+NET "Display[0]" LOC = "L14";	# segmento a
+NET "Display[1]" LOC = "H12";	# segmento b
+NET "Display[2]" LOC = "N14";	# segmento c
+NET "Display[3]" LOC = "N11";	# segmento d
+NET "Display[4]" LOC = "P12";	# segmento e
+NET "Display[5]" LOC = "L13";	# segmento f
+NET "Display[6]" LOC = "M12";	# segmento g
+NET "point" LOC = "N13";	# punto decimal "dp"
+
+NET "T[0]" LOC = "F12"; 	# Transistor 0, el de la derecha
+NET "T[1]" LOC = "J12"; 	# Transistor 1
+NET "T[2]" LOC = "M13"; 	# Transistor 2
+NET "T[3]" LOC = "K14"; 	# Transistor 3, el de la izquierda

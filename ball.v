@@ -40,6 +40,8 @@ module ball#(
 		if (rst) begin
 			y <= POS_Y;
 			x <= POS_X;
+			point_p1 <= 0;
+			point_p2 <= 0;
 		end
 		else begin
 			if (x == (p1_x + 30) & y >= p1_y & y < (p1_y + 200)) begin
@@ -56,11 +58,11 @@ module ball#(
 			end
 			else if (x < 10) begin
 				adder_x <= 1;
-				point_p1 <= 1;
+				point_p2 <= 1;
 			end
 			else if (x > 629) begin
 				adder_x <= 0;
-				point_p2 <= 0;
+				point_p1 <= 1;
 			end
 			
 			x <= adder_x ? x + 1 : x - 1;

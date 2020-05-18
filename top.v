@@ -28,7 +28,10 @@ module top(
 		output [2:0]OutRed,
 		output [2:0]OutGreen,
 		output [1:0]OutBlue,
-		output [7:0] leds
+		output [7:0] leds,
+		output [3:0] T,
+		output [6:0] Display,
+		output point
     );
 		reg [2:0] red = 3'b000;
 		reg [2:0] green = 3'b000;
@@ -37,6 +40,9 @@ module top(
 		wire [15:0] keycode;
 		wire read_complete;
 		wire break_code;
+		
+		wire point_p1;
+		wire point_p2;
 		
 		wire [9:0] pixel_column; 
 		wire [9:0] pixel_row; 
@@ -58,7 +64,9 @@ module top(
 		
 		reg p2_up;
 		reg p2_down;
-
+		
+		
+		//////////////////////////////////// INPUT
 		always @ (posedge clk) begin
 			if (read_complete) begin
 				if (break_code) begin
@@ -97,6 +105,7 @@ module top(
 			end
 		end
 
+		//////////////////////// GAME CLK
 		contador_comparador #(
 			.CNT_SIZE(23),
 			.MAX_CNT(50_000)
@@ -108,34 +117,88 @@ module top(
 			.cnt(first_cnt)
 			);
 		
+		////////////////////////////////////// PLAYERS
 		wire [9:0] p1_x;
 		wire [9:0] p1_y;
 		player #(
 			.POS_X(40),
 			.POS_Y(170)
-		) p1(.game_clk(game_clk_hit), .rst(rst), .up(p1_up), .down(p1_down), .x(p1_x), .y(p1_y));
+		) p1(.game_clk(game_clk_hit), .rst(rst | point_p1 | point_p2), .up(p1_up), .down(p1_down), .x(p1_x), .y(p1_y));
 		
 		wire [9:0] p2_x;
 		wire [9:0] p2_y;
 		player #(
 			.POS_X(550),
 			.POS_Y(170)
-		) p2(.game_clk(game_clk_hit), .rst(rst), .up(p2_up), .down(p2_down), .x(p2_x), .y(p2_y));
+		) p2(.game_clk(game_clk_hit), .rst(rst | point_p1 | point_p2), .up(p2_up), .down(p2_down), .x(p2_x), .y(p2_y));
+		
+		
+		////////////////////////////////////// BALL //////////////////////////////////////////
 		
 		wire [9:0] ball_x;
 		wire [9:0] ball_y;
 		ball #(.POS_X(310),
-				 .POS_Y(265))
-				 ball(
-						.game_clk(game_clk_hit),
-						.p1_x(p1_x),
-						.p1_y(p1_y),
-						.p2_x(p2_x),
-						.p2_y(p2_y),
-						.rst(rst),
-						.x(ball_x),
-						.y(ball_y));
+				 .POS_Y(265)
+		) ball(.game_clk(game_clk_hit),
+				.p1_x(p1_x),
+				.p1_y(p1_y),
+				.p2_x(p2_x),
+				.p2_y(p2_y),
+				.rst(rst | point_p1 | point_p2),
+				.x(ball_x),
+				.y(ball_y),
+				.point_p1(point_p1),
+				.point_p2(point_p2));
 		
+		///////////////////////////////////// SCORE ///////////////////////////////////
+		reg [3:0] score_1_r;
+		reg [3:0] score_2_r;
+		wire [3:0] score_1;
+		wire [3:0] score_2;
+		
+		assign score_1 = score_1_r;
+		assign score_2 = score_2_r;
+		
+		always @(rst, point_p1, point_p2) begin
+			if (rst) begin
+				score_1_r = 0;
+				score_2_r = 0;
+			end
+			else if (point_p1) begin
+				score_1_r = score_1_r + 1;
+			end
+			else if (point_p2) begin
+				score_2_r = score_2_r + 1;
+			end
+		end
+		// score scr(.rst(rst), .p1_point(point_p1), .p2_point(point_p2), .score_1(score_1), .score_2(score_2));
+		
+		
+		/////////////////////////////////////////DISPLAY ///////////////////////////////////////////
+				
+		///////////////////////////////////// DISPLAY ////////////////////////////////////
+		wire [7:0] count;
+		wire [3:0] data;
+		soft_gtv gtv(.rst(1'b0),
+							.clk(clk), 
+							.spd_btn(1'b0), 
+							.mode(3'b000), 
+							.evnt(1'b0),
+							.count(count));
+		// TODO: Scores
+		mux_4_1 mux(.A(score_1), .B(4'b0000), .C(score_2), .D(4'b0000), .s(count[1:0]), .o(data));
+		one_cold one(.a(count[1]), .b(count[0]), .T(T));
+		decodificador_hex dec(.data(data), .point(1'b1),
+								.a(Display[0]),
+								.b(Display[1]),
+								.c(Display[2]),
+								.d(Display[3]),
+								.e(Display[4]),
+								.f(Display[5]),
+								.g(Display[6]),
+								.p(point));
+		
+		///////////////////////////// DRAW /////////////////////////////////////////////////////////////
 		always @(posedge clk_25) begin
 			if (pixel_column >= p1_x & pixel_column <= (p1_x + 30) & pixel_row >= p1_y & pixel_row < (p1_y + 200)) begin
 				red <= 3'b010;
