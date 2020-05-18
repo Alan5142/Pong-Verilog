@@ -30,7 +30,12 @@ module player#(
 		output reg [9:0] y
     );
 	 
-	 always @ (posedge game_clk) begin
+	 initial begin
+		x <= POS_X;
+		y <= POS_Y;
+	 end
+	 
+	 always @ (posedge game_clk, posedge rst) begin
 		if (rst) begin
 			y <= POS_Y;
 			x <= POS_X;

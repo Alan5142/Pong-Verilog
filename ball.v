@@ -29,12 +29,14 @@ module ball#(
 		input [9:0] p2_y,
 		input rst,
 		output reg [9:0] x,
-		output reg [9:0] y
+		output reg [9:0] y,
+		output reg point_p1,
+		output reg point_p2
     );
-	 reg signed[1:0] adder_x = 1;
-	 reg signed[1:0] adder_y = 1;
+	 reg adder_x = 1;
+	 reg adder_y = 1;
 	 
-	 always @ (posedge game_clk) begin
+	 always @ (posedge game_clk, posedge rst) begin
 		if (rst) begin
 			y <= POS_Y;
 			x <= POS_X;
@@ -44,18 +46,25 @@ module ball#(
 				adder_x <= 1;
 			end
 			else if (x == p2_x & y >= p2_y & y < (p2_y + 200)) begin
-				adder_x <= -1;
+				adder_x <= 0;
 			end
-			else if(y == 0) begin
+			else if(y < 5) begin
 				adder_y <= 1;
 			end
-			else if(y == 640) begin
-				adder_y <= -1;
+			else if(y > 470) begin
+				adder_y <= 0;
 			end
-			else begin
-				x <= x + adder_x;
-				y <= y + adder_y;
+			else if (x < 10) begin
+				adder_x <= 1;
+				point_p1 <= 1;
 			end
+			else if (x > 629) begin
+				adder_x <= 0;
+				point_p2 <= 0;
+			end
+			
+			x <= adder_x ? x + 1 : x - 1;
+			y <= adder_y ? y + 1 : y - 1;
 		end
 	 end
 	

@@ -51,7 +51,8 @@ module top(
 			clk_25 <= ~clk_25;
 		end
 		
-		assign leds = tmp_data;
+		assign leds[6:0] = tmp_data;
+		assign leds[7] = rst;
 		reg p1_up;
 		reg p1_down;
 		
@@ -94,10 +95,6 @@ module top(
 					end
 				end
 			end
-			tmp_data[0] <= p1_up;
-			tmp_data[1] <= p1_down;
-			tmp_data[2] <= p2_up;
-			tmp_data[3] <= p2_down;
 		end
 
 		contador_comparador #(
@@ -150,7 +147,7 @@ module top(
 				green <= 3'b010;
 				blue <= 2'b01;
 			end
-			else if (pixel_column >= ball_x & pixel_column <= (ball_x +10) & pixel_row >= ball_y & pixel_word < (ball_y +10)) begin
+			else if (pixel_column >= ball_x & pixel_column <= (ball_x +10) & pixel_row >= ball_y & pixel_row < (ball_y +10)) begin
 				red <= 3'b111;
 				green <= 3'b111;
 				blue <= 2'b11;
