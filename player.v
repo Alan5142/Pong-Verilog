@@ -42,7 +42,9 @@ module player#(
 				end
 			end
 			else if (down) begin
-				if (y < 280) y <= y + 1;
+				if (y < 280) begin
+					y <= y + 1;
+				end
 			end
 		end
 	 end

@@ -62,10 +62,18 @@ module top(
 		always @ (read_complete) begin
 			if (read_complete) begin
 				if (break_code) begin
-					if (keycode == 16'h001D) p1_up = 0;
-					else if (keycode == 16'h001B) p1_down = 0;
-					else if (keycode == 16'hE075) p2_up = 0;
-					else if (keycode == 16'hE072) p2_down = 0;
+					if (keycode == 16'h001D) begin
+						p1_up = 0;
+					end
+					else if (keycode == 16'h001B) begin
+						p1_down = 0;
+					end
+					else if (keycode == 16'hE075) begin
+						p2_up = 0;
+					end
+					else if (keycode == 16'hE072) begin
+						p2_down = 0;
+					end
 				end
 				else begin
 					// if (keycode == 16'hE075) p1_up <= 1;
