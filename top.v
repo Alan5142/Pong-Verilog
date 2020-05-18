@@ -58,43 +58,46 @@ module top(
 		reg p2_up;
 		reg p2_down;
 
-		reg break_pressed = 0;
-		always @ (read_complete) begin
+		always @ (posedge clk) begin
 			if (read_complete) begin
 				if (break_code) begin
-					if (keycode == 16'h001D) begin
-						p1_up = 0;
+					if (keycode == 16'hE06B) begin
+						p1_up <= 0;
 					end
-					if (keycode == 16'h001B) begin
-						p1_down = 0;
+					if (keycode == 16'hE074) begin
+						p1_down <= 0;
 					end
 					if (keycode == 16'hE075) begin
-						p2_up = 0;
+						p2_up <= 0;
 					end
 					if (keycode == 16'hE072) begin
-						p2_down = 0;
+						p2_down <= 0;
 					end
 				end
 				else begin
 					// if (keycode == 16'hE075) p1_up <= 1;
-					if (keycode == 16'h001D) begin 
-						p1_up = 1;
-						p1_down = 0;
+					if (keycode == 16'hE06B) begin 
+						p1_up <= 1;
+						p1_down <= 0;
 					end
 					else if (keycode == 16'hE075) begin
-						p2_up = 1;
-						p2_down = 0;
+						p2_up <= 1;
+						p2_down <= 0;
 					end
-					else if (keycode == 16'h001B) begin 
-						p1_up = 0;
-						p1_down = 1;
+					else if (keycode == 16'hE074) begin 
+						p1_up <= 0;
+						p1_down <= 1;
 					end
 					else if (keycode == 16'hE072) begin
-						p2_up = 0;
-						p2_down = 1;
+						p2_up <= 0;
+						p2_down <= 1;
 					end
 				end
 			end
+			tmp_data[0] <= p1_up;
+			tmp_data[1] <= p1_down;
+			tmp_data[2] <= p2_up;
+			tmp_data[3] <= p2_down;
 		end
 
 		contador_comparador #(

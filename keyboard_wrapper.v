@@ -53,7 +53,7 @@ module keyboard_wrapper(
 					end
 					else begin
 						if (extended_data) scan_code[15:8] <= 8'hE0;
-						else scan_code[15:0] <= 8'h00;
+						else scan_code[15:8] <= 8'h00;
 						scan_code[7:0] <= data;
 						
 						finished <= 1;
