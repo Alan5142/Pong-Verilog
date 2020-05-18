@@ -36,7 +36,7 @@ module top(
 		reg [2:0] red = 3'b000;
 		reg [2:0] green = 3'b000;
 		reg [1:0] blue = 2'b00;
-		reg end_game = 0;
+		wire end_game;
 		
 		wire [15:0] keycode;
 		wire read_complete;
@@ -177,18 +177,7 @@ module top(
 				score_2_r <= score_2_r + 1;
 			end
 		end
-		
-		always @(posedge game_clk_hit) begin
-			if (rst) begin
-				end_game <= 0;
-			end
-			else if (score_1 == 5) begin
-				end_game <= 1;
-			end
-			else if (score_2 == 5) begin
-				end_game <= 1;
-			end
-		end
+		assign end_game = score_1 == 5 | score_2 == 5;
 				
 		///////////////////////////////////// DISPLAY ////////////////////////////////////
 		wire [7:0] count;
