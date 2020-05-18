@@ -111,7 +111,6 @@ module top(
 			.cnt(first_cnt)
 			);
 		
-		
 		wire [9:0] p1_x;
 		wire [9:0] p1_y;
 		player #(
@@ -126,6 +125,20 @@ module top(
 			.POS_Y(170)
 		) p2(.game_clk(game_clk_hit), .rst(rst), .up(p2_up), .down(p2_down), .x(p2_x), .y(p2_y));
 		
+		wire [9:0] ball_x;
+		wire [9:0] ball_y;
+		ball #(.POS_X(310),
+				 .POS_Y(265))
+				 ball(
+						.game_clk(game_clk_hit),
+						.p1_x(p1_x),
+						.p1_y(p1_y),
+						.p2_x(p2_x),
+						.p2_y(p2_y),
+						.rst(rst),
+						.x(ball_x),
+						.y(ball_y));
+		
 		always @(posedge clk_25) begin
 			if (pixel_column >= p1_x & pixel_column <= (p1_x + 30) & pixel_row >= p1_y & pixel_row < (p1_y + 200)) begin
 				red <= 3'b010;
@@ -136,6 +149,11 @@ module top(
 				red <= 3'b111;
 				green <= 3'b010;
 				blue <= 2'b01;
+			end
+			else if (pixel_column >= ball_x & pixel_column <= (ball_x +10) & pixel_row >= ball_y & pixel_word < (ball_y +10)) begin
+				red <= 3'b111;
+				green <= 3'b111;
+				blue <= 2'b11;
 			end
 			else begin
 				red <= 3'b000;
